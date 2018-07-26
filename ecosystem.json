@@ -1,0 +1,28 @@
+{
+  "apps": [{
+    "name": "Ice",
+    "script": "server.js",
+    // "instances": 2,
+    "env": {
+      "COMMON_VARIABLE": "true"
+    },
+    "env_production": {
+      "NODE_ENV": "production"
+    }
+  }],
+  "deploy": {
+    "production": {
+      "user": "root",
+      "host": ["67.216.222.103"],
+      "ref": "origin/master",
+      "repo": "git@gitee.com:style65/ice.git",
+      "path": "/home/wwwroot/ice/production",
+      "ssh_options": "StrictHostKeyChecking=no",
+      // "post-deploy": "npm install",
+      "pre-deploy-local": "echo 'Deploy Done!'",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
