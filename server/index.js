@@ -1,6 +1,14 @@
 import Koa from 'koa'
 import { Nuxt, Builder } from 'nuxt'
 
+class Server {
+  constructor () {
+    this.app = new Koa()
+    // this.useMiddleWare(this.app) // 中间件
+  }
+
+  
+}
 async function start () {
   const app = new Koa()
   const host = process.env.HOST || '127.0.0.1'
