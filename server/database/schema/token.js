@@ -32,6 +32,10 @@ TokenSchema.static = {  // 添加静态方法
       name: 'access_token'
     }).exec()
 
+    if (token && token.token) {
+      token.access_token = token.token
+    }
+
     return token
   },
 
