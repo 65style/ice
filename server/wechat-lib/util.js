@@ -58,7 +58,6 @@ function tpl (content, message) {
   if (Array.isArray(content)) {
     type = 'news'
   }
-
   if (!content) {
     content = '无法回复'
   }
