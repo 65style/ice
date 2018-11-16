@@ -16,6 +16,6 @@ const wechatConfig = {
 
 export const getWechat = () => {
   const wechatClient = new Wechat(wechatConfig.wechat)
-  console.log(33333333)
+  
   return wechatClient
 }

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 const TokenSchema = new mongoose.Schema({
   name: String,
   token: String,
-  expires_in: String,
+  expires_in: Number,
   meta: {
     createdAt: {
       type: Date,
@@ -26,7 +26,7 @@ TokenSchema.pre('save', function(next) {  // 在每一条数据保存之前
   next()
 })
 
-TokenSchema.static = {  // 添加静态方法 
+TokenSchema.statics = {  // 添加静态方法 
   async getAccessToken () {
     const token = await this.findOne({
       name: 'access_token'
@@ -35,11 +35,12 @@ TokenSchema.static = {  // 添加静态方法
     if (token && token.token) {
       token.access_token = token.token
     }
-
+    
     return token
   },
 
-  async setAccessToken (data) {
+  async saveAccessToken (data) {
+
     let token = await this.findOne({
       name: 'access_token'
     }).exec()
@@ -50,7 +51,7 @@ TokenSchema.static = {  // 添加静态方法
     } else {
       token = new Token({
         name: 'access_token',
-        token: data.access.token,
+        token: data.access_token,
         expires_in: data.expires_in
       })
     }
