@@ -1,8 +1,13 @@
 import request from 'request-promise'
+import iconv from 'iconv-lite'
 import formstream from 'formstream'
 import fs from 'fs'
 import * as _ from 'lodash'
 import path from 'path'
+
+// const Iconv = require('iconv').Iconv
+// const iconv = new Iconv('GBK', 'UTF-8')
+
 
 const base = 'https://api.weixin.qq.com/cgi-bin/'
 const api = {
@@ -65,8 +70,8 @@ export default class Wechat {
     options = Object.assign({}, options, {json: true})
 
     try {
+
       const response = await request(options)
-      console.log(response)
       return response
     } catch (error) {
       console.error(error)
@@ -89,6 +94,7 @@ export default class Wechat {
   }
 
   async updateAccessToken () {
+    console.log(99999999)
     const url = api.accessToken + '&appid=' + this.appID + '&secret=' + this.appSecret
 
     const data = await this.request({url: url})
@@ -115,10 +121,29 @@ export default class Wechat {
   }
 
   async handle (operation, ...args) {
-    const tokenData = await this.fetchAccessToken()
+
     const options = this[operation](tokenData.access_token, ...args)
+    console.log(options)
+    console.log(33333)
     const data = await this.request(options)
     
+    return data
+  }
+
+  /**
+   * 处理自定义方法
+   * @param  {...any} args 
+   */
+  async handleCustomize (operation, ...args) {
+    console.log(1111)
+    const tokenData = await this.fetchAccessToken()
+    console.log(tokenData)
+    console.log(2222)
+    const options = this[operation](...args)
+    console.log(options)
+    console.log(3333333)
+    const data = await this.request(options)
+    console.log(data)
     return data
   }
 
@@ -271,7 +296,7 @@ export default class Wechat {
         name: name
       }
     }
-    const url = api.tag.create + '?access_token=' + token
+    const url = api.tag.create + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -281,7 +306,7 @@ export default class Wechat {
    * @param {*} token 
    */
   fetchTags (token) {
-    const url = api.tag.fetch + '?access_token=' + token
+    const url = api.tag.fetch + 'access_token=' + token
 
     return {url: url} // 默认不写 method 就是 get 请求
   }
@@ -299,7 +324,7 @@ export default class Wechat {
         name: name
       }
     }
-    const url = api.tag.update + '?access_token=' + token
+    const url = api.tag.update + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -315,7 +340,7 @@ export default class Wechat {
         id: tagId
       }
     }
-    const url = api.tag.delete + '?access_token=' + token
+    const url = api.tag.delete + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -332,7 +357,7 @@ export default class Wechat {
       next_openid: openId || ''
     }
 
-    const url = api.tag.fetchTagUsers + '?access_token=' + token
+    const url = api.tag.fetchTagUsers + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -349,7 +374,7 @@ export default class Wechat {
       tagid: tagId
     }
 
-    const url = api.tag.batchTag + '?access_token=' + token
+    const url = api.tag.batchTag + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -366,7 +391,7 @@ export default class Wechat {
       tagid: tagId
     }
 
-    const url = api.tag.batchUntag + '?access_token=' + token
+    const url = api.tag.batchUntag + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -381,7 +406,7 @@ export default class Wechat {
       openid: openId
     }
 
-    const url = api.tag.getTagList + '?access_token=' + token
+    const url = api.tag.getTagList + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -398,7 +423,7 @@ export default class Wechat {
       remark: remark
     }
 
-    const url = api.user.remark + '?access_token=' + token
+    const url = api.user.remark + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -408,8 +433,8 @@ export default class Wechat {
    * @param {*} token 
    * @param {*} openId 
    */
-  info (token, openId, lang) {
-    const url = `${api.user.info}?access_token=${token}&openid=${openId}&lang=${lang || 'zh_CN'}`
+  getUserInfo (token, openId, lang) {
+    const url = `${api.user.info}access_token=${token}&openid=${openId}&lang=${lang || 'zh_CN'}`
 
     return {url: url}
   }
@@ -419,12 +444,12 @@ export default class Wechat {
    * @param {*} token 
    * @param {*} userList 
    */
-  bathcInfo (token, userList) {
+  bathcUserInfo (token, userList) {
     const form = {
       user_list: userList
     }
 
-    const url = api.user.bathcInfo + '?access_token=' + token
+    const url = api.user.bathcInfo + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -435,7 +460,7 @@ export default class Wechat {
    * @param {*} openId 
    */
   fetchUserList (token, openId) {
-    const url = `${api.user.fetchUserList}?access_token=${token}&next_openid=${openId || ''}`
+    const url = `${api.user.fetchUserList}access_token=${token}&next_openid=${openId || ''}`
 
     return {url}
   }
@@ -449,7 +474,7 @@ export default class Wechat {
     const form = {
       begin_openid: openId
     }
-    const url = api.user.fetchBlackList + '?access_token=' + token
+    const url = api.user.fetchBlackList + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -463,7 +488,7 @@ export default class Wechat {
     const form = {
       openid_list: openIdList
     }
-    const url = api.user.batchBlackList + '?access_token=' + token
+    const url = api.user.batchBlackList + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
@@ -477,9 +502,15 @@ export default class Wechat {
     const form = {
       openid_list: openIdList
     }
-    const url = api.user.batchUnBlackList + '?access_token=' + token
+    const url = api.user.batchUnBlackList + 'access_token=' + token
 
     return {method: 'POST', url: url, body: form}
   }
 
+
+  getTelAddress (tel) {
+    const url = 'http://cx.shouji.360.cn/phonearea.php?number=' + tel
+
+    return {url: url}
+  }
 }
