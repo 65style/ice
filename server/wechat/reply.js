@@ -46,61 +46,152 @@ export default async (ctx, netx) => {
   //   ]
   // }
   
+  switch (message.MsgType) {
+    case 'event':                   
+      if(message.Event === 'subscribe') {   // 关注事件
+        ctx.body = '欢迎关注'
+      } else if (message.Event === 'unsubscribe') { // 取消关注事件
+        console.log('取消关注了')
+      } else if (message.Event === 'LOCATION') {  // 上报地理位置事件
+        ctx.body = '纬度：' + message.Latitude + ' 经度：' + message.Longitude + ' 精度：' + message.Precision
+      } else if (message.Event === 'VIEW') {
+        ctx.body = message.EventKey + message.MenuId
+      } else if (message.Event === 'pic_sysphoto') {
+        ctx.body = message.EventKey + message.MenuId
+      } else if (message.Event === 'location_select') {
+        ctx.body = message.Label
+      }
+      break;
 
-  if (message.MsgType === 'event') {
-    if(message.Event === 'subscribe') {   // 关注事件
-      ctx.body = '欢迎关注'
-    } else if (message.Event === 'unsubscribe') { // 取消关注事件
-      console.log('取消关注了')
-    } else if (message.Event === 'LOCATION') {  // 上报地理位置事件
-      ctx.body = '纬度：' + message.Latitude + ' 经度：' + message.Longitude + ' 精度：' + message.Precision
-    }
-  } else if (message.MsgType === 'text') {
-    const msg = message.Content
-    const reg = /^1(3|4|5|7|8)\d{9}$/
-    console.log(reg.test(msg))
-    if (reg.test(msg)) {
-      const telAddress = await client.handleCustomize('getTelAddress', msg)
-      console.log(telAddress)
-      ctx.body = telAddress.data.province + ' - ' + telAddress.data.city + ' - ' + telAddress.data.sp
-    } else {
+    case 'text':
+      const msg = message.Content
+      const reg = /^1(3|4|5|7|8)\d{9}$/
+      console.log(reg.test(msg))
+      if (reg.test(msg)) {
+        const telAddress = await client.handleCustomize('getTelAddress', msg)
+        console.log(telAddress)
+        ctx.body = telAddress.data.province + ' - ' + telAddress.data.city + ' - ' + telAddress.data.sp
+      } else {
 
-      // if (message.Content === '1') {
-  
-      //   const data = await client.handle('getUserInfo', 'oTJAh0-dgmvXWzMG998T7JXRI27w')
-  
-      //   console.log(data)
-      // }
-      // ctx.body = message.Content
-    }
-  } else if (message.MsgType === 'image') {
-    ctx.body = {
-      type: 'image',
-      mediaId: message.MediaId
-    }
-  } else if (message.MsgType === 'voice') {
-    ctx.body = {
-      type: 'voice',
-      mediaId: message.MediaId
-    }
-  } else if (message.MsgType === 'video') {
-    ctx.body = {
-      type: 'video',
-      mediaId: message.MediaId
-    }
-  } else if (message.MsgType === 'shortvideo') {
-    ctx.body = {
-      type: 'video',
-      mediaId: message.MediaId
-    }
-  } else if (message.MsgType === 'location') {
-    ctx.body = '我们在同一个地球哟！您在：' + message.Label + '\n维度：' + message.Location_X + '经度：' + message.Location_Y
-  } else if (message.MsgType === 'link') {
-    ctx.body = [{
-      title: message.Title,
-      description: message.Description,
-      picUrl: 'http://mmbiz.qpic.cn/mmbiz_jpg/t4Q9tl3uGI8zEmPB8UTVJ8zIXC1GAvMZPtFDXdudPytOia7mWxbrboD0tNwnewiaBqC42XeAnU81AbtFKnMjAS6g/0',
-      url: message.url
-    }]
+        // if (message.Content === '1') {
+    
+        //   const data = await client.handle('getUserInfo', 'oTJAh0-dgmvXWzMG998T7JXRI27w')
+    
+        //   console.log(data)
+        // }
+        // ctx.body = message.Content
+        if (message.Content === '菜单') {
+          const meun = require('./menu').default
+          console.log(meun)
+          await client.handle('deleteMenu')
+          const data = await client.handle('createMenu', meun)
+    
+          console.log(data)
+        }
+        ctx.body = message.Content
+      }
+      break;
+      
+    case 'image':
+      ctx.body = {
+        type: 'image',
+        mediaId: message.MediaId
+      }
+      break;
+
+    case 'voice':
+      ctx.body = {
+        type: 'voice',
+        mediaId: message.MediaId
+      }
+      break;
+
+    case 'shortvideo':
+      ctx.body = {
+        type: 'video',
+        mediaId: message.MediaId
+      }
+      break;
+
+    case 'location':
+      ctx.body = '我们在同一个地球哟！您在：' + message.Label + '\n维度：' + message.Location_X + '经度：' + message.Location_Y
+      break;
+
+    case 'link':
+      ctx.body = [{
+        title: message.Title,
+        description: message.Description,
+        picUrl: 'http://mmbiz.qpic.cn/mmbiz_jpg/t4Q9tl3uGI8zEmPB8UTVJ8zIXC1GAvMZPtFDXdudPytOia7mWxbrboD0tNwnewiaBqC42XeAnU81AbtFKnMjAS6g/0',
+        url: message.url
+      }]
+      break;
+    default:
+      break;
   }
+
+  // if (message.MsgType === 'event') {
+  //   if(message.Event === 'subscribe') {   // 关注事件
+  //     ctx.body = '欢迎关注'
+  //   } else if (message.Event === 'unsubscribe') { // 取消关注事件
+  //     console.log('取消关注了')
+  //   } else if (message.Event === 'LOCATION') {  // 上报地理位置事件
+  //     ctx.body = '纬度：' + message.Latitude + ' 经度：' + message.Longitude + ' 精度：' + message.Precision
+  //   }
+  // } else if (message.MsgType === 'text') {
+  //   const msg = message.Content
+  //   const reg = /^1(3|4|5|7|8)\d{9}$/
+  //   console.log(reg.test(msg))
+  //   if (reg.test(msg)) {
+  //     const telAddress = await client.handleCustomize('getTelAddress', msg)
+  //     console.log(telAddress)
+  //     ctx.body = telAddress.data.province + ' - ' + telAddress.data.city + ' - ' + telAddress.data.sp
+  //   } else {
+
+  //     // if (message.Content === '1') {
+  
+  //     //   const data = await client.handle('getUserInfo', 'oTJAh0-dgmvXWzMG998T7JXRI27w')
+  
+  //     //   console.log(data)
+  //     // }
+  //     // ctx.body = message.Content
+  //     if (message.Content === '菜单') {
+  //       const meun = require('./menu').default
+  //       console.log(meun)
+  //       await client.handle('deleteMenu')
+  //       const data = await client.handle('createMenu', meun)
+  
+  //       console.log(data)
+  //     }
+  //     ctx.body = message.Content
+  //   }
+  // } else if (message.MsgType === 'image') {
+  //   ctx.body = {
+  //     type: 'image',
+  //     mediaId: message.MediaId
+  //   }
+  // } else if (message.MsgType === 'voice') {
+  //   ctx.body = {
+  //     type: 'voice',
+  //     mediaId: message.MediaId
+  //   }
+  // } else if (message.MsgType === 'video') {
+  //   ctx.body = {
+  //     type: 'video',
+  //     mediaId: message.MediaId
+  //   }
+  // } else if (message.MsgType === 'shortvideo') {
+  //   ctx.body = {
+  //     type: 'video',
+  //     mediaId: message.MediaId
+  //   }
+  // } else if (message.MsgType === 'location') {
+  //   ctx.body = '我们在同一个地球哟！您在：' + message.Label + '\n维度：' + message.Location_X + '经度：' + message.Location_Y
+  // } else if (message.MsgType === 'link') {
+  //   ctx.body = [{
+  //     title: message.Title,
+  //     description: message.Description,
+  //     picUrl: 'http://mmbiz.qpic.cn/mmbiz_jpg/t4Q9tl3uGI8zEmPB8UTVJ8zIXC1GAvMZPtFDXdudPytOia7mWxbrboD0tNwnewiaBqC42XeAnU81AbtFKnMjAS6g/0',
+  //     url: message.url
+  //   }]
+  // }
 }

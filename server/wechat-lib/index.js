@@ -44,6 +44,14 @@ const api = {
     fetchBlackList: base + 'tags/members/getblacklist?',        // 获取公众号的黑名单列表
     batchBlackList: base + 'tags/members/batchblacklist?',      // 拉黑用户
     bathcUnBlackList: base + 'tags/members/batchunblacklist?'   // 取消拉黑用户    
+  },
+  menu: {
+    create: base + 'menu/create?',    // 自定义菜单创建接口
+    get: base + 'menu/get?',          // 自定义菜单查询接口
+    delete: base + 'menu/delete?',    // 自定义菜单删除接口
+    addConditional: base + 'menu/addconditional?',    // 创建个性化菜单
+    delConditional: base + 'menu/delconditional?',   // 删除个性化菜单
+    getCurrentSelfMenu: base + 'get_current_selfmenu_info?',    // 获取自定义菜单配置接口
   }
 }
 
@@ -121,7 +129,7 @@ export default class Wechat {
   }
 
   async handle (operation, ...args) {
-
+    const tokenData = await this.fetchAccessToken()
     const options = this[operation](tokenData.access_token, ...args)
     console.log(options)
     console.log(33333)
@@ -507,7 +515,83 @@ export default class Wechat {
     return {method: 'POST', url: url, body: form}
   }
 
+  /**
+   * 自定义菜单创建接口
+   * @param {*} token 
+   * @param {*} menu 
+   */
+  createMenu (token, menu) {
+    const url = api.menu.create + 'access_token=' + token
 
+    return {method: 'POST', url: url, body: menu}
+  }
+
+  /**
+   * 自定义菜单查询接口
+   * @param {*} token 
+   */
+  getMenu (token) {
+    const url = api.menu.get + 'access_token=' + token
+
+    return {url: url}
+  }
+
+  /**
+   * 自定义菜单删除接口
+   * @param {*} token 
+   */
+  deleteMenu (token) {
+    const url = api.menu.delete + 'access_token=' + token
+
+    return {url: url}
+  }
+
+  /**
+   * 创建个性化菜单
+   * @param {*} token 
+   * @param {*} menu 
+   * @param {*} rule 
+   */
+  addConditionalMenu (token, menu, rule) {
+    const url = api.menu.addConditional + 'access_token=' + token
+
+    const form = {
+      button: menu,
+      matchrule: rule
+    }
+
+    return {method: 'POST', url: url, body: form}
+  }
+
+  /**
+   * 删除个性化菜单
+   * @param {*} token 
+   * @param {*} menuId 
+   */
+  delConditionalMenu (token, menuId) {
+    const url = api.menu.delConditional + 'access_token=' + token
+
+    const form = {
+      menuid: menuId
+    }
+
+    return {method: 'POST', url: url, body: form}
+  }
+  
+  /**
+   * 获取自定义菜单配置接口
+   * @param {*} token 
+   */
+  getCurrentSelfMenu (token) {
+    const url = api.menu.getCurrentSelfMenu + 'access_token=' + token
+
+    return {url: url}
+  }
+
+  /**
+   * 非微信接口，获取手机号归属地
+   * @param {*} tel 
+   */
   getTelAddress (tel) {
     const url = 'http://cx.shouji.360.cn/phonearea.php?number=' + tel
 
